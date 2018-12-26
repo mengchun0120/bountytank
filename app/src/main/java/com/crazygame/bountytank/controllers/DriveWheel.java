@@ -38,9 +38,9 @@ public class DriveWheel {
     }
 
     private void setDriveWheel(float width, float height) {
-        radius = height * 0.2f;
+        radius = 150f;
 
-        final float gapBorder = 30f;
+        final float gapBorder = 50f;
         final float distArrowToCenter = radius * 0.75f;
 
         center[0] = -width/2f + radius + gapBorder;
@@ -102,7 +102,7 @@ public class DriveWheel {
         for(int i = 0; i < 4; ++i) {
             if(i == direction) {
                 paint.fill = true;
-                OpenGLHelper.getColor(paint.fillColor, pieFillColor);
+                paint.setFillColor(pieFillColor);
             } else {
                 paint.fill = false;
             }
@@ -111,7 +111,7 @@ public class DriveWheel {
         }
 
         paint.fill = true;
-        OpenGLHelper.getColor(paint.fillColor, arrowFillColor);
+        paint.setFillColor(arrowFillColor);
         for(int i = 0; i < 4; ++i) {
             arrows[i].draw(simpleShaderProgram, arrowLocations, i*2, paint);
         }

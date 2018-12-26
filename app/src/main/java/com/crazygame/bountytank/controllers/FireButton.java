@@ -21,7 +21,7 @@ public class FireButton {
     private Paint paint = new Paint();
 
     public FireButton(float width, float height) {
-        radius = 0.15f * height;
+        radius = 150f;
 
         final float gapBorder = 50f;
 

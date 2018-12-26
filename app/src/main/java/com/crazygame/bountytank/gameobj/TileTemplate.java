@@ -7,8 +7,8 @@ import com.crazygame.bountytank.geometry.Rectangle;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 
 public class TileTemplate {
-    public final float width = 100f;
-    public final float height = 100f;
+    public final float width = 40f;
+    public final float height = 40f;
     private final Rectangle tile = new Rectangle(width, height);
     private final Paint paint = new Paint();
 

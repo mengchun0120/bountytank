@@ -1,8 +1,11 @@
 package com.crazygame.bountytank.gameobj;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 
+import com.crazygame.bountytank.geometry.Line;
+import com.crazygame.bountytank.geometry.Paint;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 
 import java.io.BufferedReader;
@@ -12,27 +15,20 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Map {
-    public final static float MAX_OBJ_BREATH = 200f;
-    public final static float BLOCK_BREATH = 100f;
+    public final static float MAX_OBJ_BREATH = 160f;
+    public final static float BLOCK_BREATH = 80f;
+    public final static int MAP_BLOCKS_X = 14;
 
-    public final GameObject[][] objects;
-    public final int xBlocks, yBlocks;
-    public final float width, height;
+    private final int borderColor = Color.argb(255, 0, 0, 0);
+    private final Line leftBorder, rightBorder;
+    private final GameObject[][] objects;
+    private final int xBlocks, yBlocks;
+    private final float width, height;
     private final float extraX, extraY;
     private int xStart, xEnd, yStart, yEnd;
     private final float[] viewportOrigin = new float[SimpleShaderProgram.POSITION_COMPONENT_COUNT];
-
-    public Map(int xBlocks, int yBlocks, float viewportWidth, float viewportHeight) {
-        this.xBlocks = xBlocks;
-        this.yBlocks = yBlocks;
-        width = xBlocks * BLOCK_BREATH;
-        height = yBlocks * BLOCK_BREATH;
-
-        extraX = (viewportWidth + MAX_OBJ_BREATH) / 2f;
-        extraY = (viewportHeight + MAX_OBJ_BREATH) / 2f;
-
-        objects = new GameObject[yBlocks][xBlocks];
-    }
+    private final Paint paint = new Paint();
+    private final float[] borderLocation = {0f, 0f};
 
     public Map(Context context, int resourceId, float viewportWidth, float viewportHeight) {
         try {
@@ -44,11 +40,20 @@ public class Map {
             line = reader.readLine();
             StringTokenizer tokenizer = new StringTokenizer(line);
 
-            xBlocks = Integer.parseInt(tokenizer.nextToken());
+            xBlocks = MAP_BLOCKS_X;
             yBlocks = Integer.parseInt(tokenizer.nextToken());
-            width = xBlocks * BLOCK_BREATH;
+            width =  xBlocks * BLOCK_BREATH;
             height = yBlocks * BLOCK_BREATH;
 
+            float borderAbsX = width/2f, borderAbsY = viewportHeight/2f;
+            leftBorder = new Line(-borderAbsX, borderAbsY, -borderAbsX, -borderAbsY);
+            rightBorder = new Line(borderAbsX, borderAbsY, borderAbsX, -borderAbsY);
+
+            paint.drawBorder = true;
+            paint.relativeToViewport = false;
+            paint.lineWidth = 1f;
+            paint.setBorderColor(borderColor);
+            
             objects = new GameObject[yBlocks][xBlocks];
 
             extraX = (viewportWidth + MAX_OBJ_BREATH) / 2f;
@@ -73,8 +78,6 @@ public class Map {
                     addObject(tile, getRow(y), getCol(x));
                 }
             }
-
-
 
         } catch(IOException e) {
             throw new RuntimeException("Failed to read resource");
@@ -152,5 +155,7 @@ public class Map {
                 }
             }
         }
+        leftBorder.draw(simpleShaderProgram, borderLocation, 0, paint);
+        rightBorder.draw(simpleShaderProgram, borderLocation, 0, paint);
     }
 }
