@@ -12,6 +12,7 @@ import com.crazygame.bountytank.controllers.DriveWheel;
 import com.crazygame.bountytank.controllers.FireButton;
 import com.crazygame.bountytank.event.TouchEvent;
 import com.crazygame.bountytank.event.TouchEventQueue;
+import com.crazygame.bountytank.gameobj.Map;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,7 +32,6 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
 
     private SimpleShaderProgram simpleShaderProgram;
     private final float[] projectionMatrix = new float[16];
-    private final float[] viewportOrigin = new float[SimpleShaderProgram.POSITION_COMPONENT_COUNT];
 
     private final TouchEventQueue[] eventQueues = new TouchEventQueue[2];
     private final int queueSize = 100;
@@ -43,6 +43,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
     private AtomicInteger gameState = new AtomicInteger();
 
     private Object gameLock = new Object();
+    private Map map;
     private DriveWheel driveWheel;
     private FireButton fireButton;
 
@@ -53,9 +54,6 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
 
         width = size.x;
         height = size.y;
-
-        viewportOrigin[0] = width / 2f;
-        viewportOrigin[1] = height / 2f;
 
         eventQueues[0] = new TouchEventQueue(queueSize);
         eventQueues[1] = new TouchEventQueue(queueSize);
@@ -79,6 +77,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
 
         driveWheel = new DriveWheel(width, height);
         fireButton = new FireButton(width, height);
+        map = new Map(context, R.raw.map1, width, height);
 
         running.set(true);
         gameThread.start();
@@ -103,9 +102,9 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         simpleShaderProgram.useProgram();
         simpleShaderProgram.setProjectionMatrix(projectionMatrix, 0);
-        simpleShaderProgram.setViewportOrigin(viewportOrigin, 0);
 
         synchronized (gameLock) {
+            map.draw(simpleShaderProgram);
             driveWheel.draw(simpleShaderProgram);
             fireButton.draw(simpleShaderProgram);
         }
@@ -135,6 +134,8 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
                     fireButton.onTouch(touchEvent);
                     processQueue.removeFirst();
                 }
+
+                map.updateObjects();
             }
         }
     }
