@@ -21,13 +21,13 @@ public class TankTemplate {
         {0f, -13f},
         {13f, 0f},
         {0f, 13f},
-        {13f, 0f}
+        {-13f, 0f}
     };
     private final float[][] barrelPosition = {
         {0f, 25f},
         {-25f, 0f},
         {0f, -25f},
-        {-25f, 0f}
+        {25f, 0f}
     };
     private final float[] posBuffer = new float[SimpleShaderProgram.POSITION_COMPONENT_COUNT];
     private final float[] borderColor =

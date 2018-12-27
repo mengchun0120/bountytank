@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 
+import com.crazygame.bountytank.GameView;
+import com.crazygame.bountytank.controllers.DriveWheel;
 import com.crazygame.bountytank.geometry.Line;
 import com.crazygame.bountytank.opengl.OpenGLHelper;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
@@ -26,7 +28,9 @@ public class Map {
     private final int yBlocks;
     private final float width = (float)xBlocks * BLOCK_BREATH;
     private final float height;
+    private final float minViewportOriginY, maxViewportOriginY;
     private final float extraY;
+    private Tank player;
     private int yStart, yEnd;
     private final float[] viewportOrigin = new float[SimpleShaderProgram.POSITION_COMPONENT_COUNT];
 
@@ -44,10 +48,11 @@ public class Map {
             height = yBlocks * BLOCK_BREATH;
 
             viewportOrigin[0] = width/2f;
-            viewportOrigin[1] = viewportHeight / 2f;
+
+            minViewportOriginY = viewportHeight/2f;
+            maxViewportOriginY = height - viewportHeight/2f;
 
             extraY = (viewportHeight + MAX_OBJ_BREATH) / 2f;
-            updateEffectiveRegion();
 
             float borderAbsX = width/2f, borderAbsY = viewportHeight/2f;
             leftBorder = new Line(-borderAbsX, borderAbsY, -borderAbsX, -borderAbsY);
@@ -63,20 +68,34 @@ public class Map {
                     float x = Float.parseFloat(tokenizer.nextToken());
                     float y = Float.parseFloat(tokenizer.nextToken());
                     Tile tile = new Tile(x, y);
-                    addObject(tile);
+                    addObject(tile, getRow(y), getCol(x));
                 } else if(type.equals("tank")) {
                     int direction = Integer.parseInt(tokenizer.nextToken());
                     int side = Integer.parseInt(tokenizer.nextToken());
                     float x = Float.parseFloat(tokenizer.nextToken());
                     float y = Float.parseFloat(tokenizer.nextToken());
                     Tank tank = new Tank(direction, side, x, y);
-                    addObject(tank);
+                    addObject(tank, getRow(y), getCol(x));
+                    if(side == 1) {
+                        player = tank;
+                    }
                 }
             }
+
+            updateViewportOrigin();
+            updateEffectiveRegion();
 
         } catch(IOException e) {
             throw new RuntimeException("Failed to read resource");
         }
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
     }
 
     public int getRow(float y) {
@@ -87,34 +106,12 @@ public class Map {
         return (int)Math.floor(x / BLOCK_BREATH);
     }
 
-    public boolean addObject(GameObject obj) {
-        int col = getCol(obj.position[0]);
-        if(col < 0 || col >= xBlocks) {
-            return false;
-        }
-
-        int row = getRow(obj.position[1]);
-        if(row < 0 || row >= yBlocks) {
-            return false;
-        }
-
+    public void addObject(GameObject obj, int row, int col) {
         obj.next = objects[row][col];
         objects[row][col] = obj;
-
-        return true;
     }
 
-    public boolean removeObject(GameObject obj) {
-        int col = getCol(obj.position[0]);
-        if(col < 0 || col >= xBlocks) {
-            return false;
-        }
-
-        int row = getRow(obj.position[1]);
-        if(row < 0 || row >= yBlocks) {
-            return false;
-        }
-
+    public boolean removeObject(GameObject obj, int row, int col) {
         GameObject prev = null, obj1;
 
         for(obj1= objects[row][col]; obj1!= null; obj1= obj1.next) {
@@ -149,8 +146,21 @@ public class Map {
         }
     }
 
-    public void updateObjects() {
+    private void updateViewportOrigin() {
+        if(player.position[1] >= minViewportOriginY && player.position[1] <= maxViewportOriginY) {
+            viewportOrigin[1] = player.position[1];
+        } else if (player.position[1] < minViewportOriginY) {
+            viewportOrigin[1] = minViewportOriginY;
+        } else {
+            viewportOrigin[1] = maxViewportOriginY;
+        }
+    }
 
+    public void updateObjects(GameView gameView, int direction, boolean firing, float timeDelta) {
+        player.update(this, direction, firing, timeDelta);
+        updateViewportOrigin();
+        updateEffectiveRegion();
+        gameView.requestRender();
     }
 
     public void draw(SimpleShaderProgram simpleShaderProgram) {

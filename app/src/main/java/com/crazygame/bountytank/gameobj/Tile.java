@@ -11,6 +11,21 @@ public class Tile extends GameObject {
     }
 
     @Override
+    public float getWidth() {
+        return template.width;
+    }
+
+    @Override
+    public float getHeight() {
+        return template.height;
+    }
+
+    @Override
+    public boolean checkCollision(GameObject obj1, float x, float y) {
+        return false;
+    }
+
+    @Override
     public void draw(SimpleShaderProgram simpleShaderProgram) {
         template.draw(simpleShaderProgram, position);
     }

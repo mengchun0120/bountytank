@@ -9,5 +9,11 @@ public abstract class GameObject {
     public GameObject() {
     }
 
+    public abstract float getWidth();
+
+    public abstract float getHeight();
+
+    public abstract boolean checkCollision(GameObject obj1, float x, float y);
+
     public abstract void draw(SimpleShaderProgram simpleShaderProgram);
 }

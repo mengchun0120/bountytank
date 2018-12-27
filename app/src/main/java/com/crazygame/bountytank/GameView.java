@@ -47,6 +47,8 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
     private DriveWheel driveWheel;
     private FireButton fireButton;
 
+    private float prevTime;
+
     public GameView(Context context, Point size) {
         super(context);
 
@@ -83,6 +85,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
         gameThread.start();
 
         gameState.set(RUNNING);
+        prevTime = System.nanoTime() / 1e9f;
 
         setOnTouchListener(this);
     }
@@ -124,6 +127,10 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
                 }
             }
 
+            float currentTime = System.nanoTime() / 1e9f;
+            float timeDelta = currentTime - prevTime;
+            prevTime = currentTime;
+
             synchronized (gameLock) {
                 int processQueueIdx = (waitQueueIdx + 1) % eventQueues.length;
                 TouchEventQueue processQueue = eventQueues[processQueueIdx];
@@ -135,7 +142,8 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
                     processQueue.removeFirst();
                 }
 
-                map.updateObjects();
+                map.updateObjects(this, driveWheel.getDirection(),
+                        fireButton.isPressed(), timeDelta);
             }
         }
     }
