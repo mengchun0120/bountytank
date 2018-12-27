@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.util.Log;
 
 import com.crazygame.bountytank.geometry.Line;
-import com.crazygame.bountytank.geometry.Paint;
+import com.crazygame.bountytank.opengl.OpenGLHelper;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 
 import java.io.BufferedReader;
@@ -19,7 +19,8 @@ public class Map {
     public final static float BLOCK_BREATH = 80f;
     public final static int MAP_BLOCKS_X = 14;
 
-    private final int borderColor = Color.argb(255, 0, 0, 0);
+    private final float[] borderColor =
+            OpenGLHelper.getColor(Color.argb(255, 0, 0, 0));
     private final Line leftBorder, rightBorder;
     private final GameObject[][] objects;
     private final int xBlocks, yBlocks;
@@ -27,8 +28,6 @@ public class Map {
     private final float extraX, extraY;
     private int xStart, xEnd, yStart, yEnd;
     private final float[] viewportOrigin = new float[SimpleShaderProgram.POSITION_COMPONENT_COUNT];
-    private final Paint paint = new Paint();
-    private final float[] borderLocation = {0f, 0f};
 
     public Map(Context context, int resourceId, float viewportWidth, float viewportHeight) {
         try {
@@ -49,10 +48,6 @@ public class Map {
             leftBorder = new Line(-borderAbsX, borderAbsY, -borderAbsX, -borderAbsY);
             rightBorder = new Line(borderAbsX, borderAbsY, borderAbsX, -borderAbsY);
 
-            paint.drawBorder = true;
-            paint.lineWidth = 1f;
-            paint.setBorderColor(borderColor);
-            
             objects = new GameObject[yBlocks][xBlocks];
 
             extraX = (viewportWidth + MAX_OBJ_BREATH) / 2f;
@@ -67,12 +62,19 @@ public class Map {
                 tokenizer = new StringTokenizer(line);
 
                 String type = tokenizer.nextToken();
-                float x = Float.parseFloat(tokenizer.nextToken());
-                float y = Float.parseFloat(tokenizer.nextToken());
 
                 if(type.equals("tile")) {
+                    float x = Float.parseFloat(tokenizer.nextToken());
+                    float y = Float.parseFloat(tokenizer.nextToken());
                     Tile tile = new Tile(x, y);
                     addObject(tile, getRow(y), getCol(x));
+                } else if(type.equals("tank")) {
+                    int direction = Integer.parseInt(tokenizer.nextToken());
+                    int side = Integer.parseInt(tokenizer.nextToken());
+                    float x = Float.parseFloat(tokenizer.nextToken());
+                    float y = Float.parseFloat(tokenizer.nextToken());
+                    Tank tank = new Tank(direction, side, x, y);
+                    addObject(tank, getRow(y), getCol(x));
                 }
             }
 
@@ -155,7 +157,7 @@ public class Map {
 
         simpleShaderProgram.setRelativeToViewport(false);
         simpleShaderProgram.setUseObjRef(false);
-        leftBorder.draw(simpleShaderProgram, paint);
-        rightBorder.draw(simpleShaderProgram, paint);
+        leftBorder.draw(simpleShaderProgram, null, borderColor, 1.0f);
+        rightBorder.draw(simpleShaderProgram, null, borderColor, 1.0f);
     }
 }

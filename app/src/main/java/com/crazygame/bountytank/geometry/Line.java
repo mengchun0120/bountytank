@@ -15,14 +15,11 @@ public class Line extends Shape {
         vertices.bindData();
     }
 
-    public void draw(SimpleShaderProgram program, Paint paint) {
-        if(!paint.drawBorder) {
-            return;
-        }
+    public void draw(SimpleShaderProgram program,  float[] fillColor,
+                     float[] borderColor, float lineWidth) {
         program.setPosition(vertices, 0, 0);
-        program.setUseFixedColor(true);
-        program.setFixedColor(paint.borderColor, 0);
-        GLES20.glLineWidth(paint.lineWidth);
+        program.setColor(borderColor, 0);
+        GLES20.glLineWidth(lineWidth);
         GLES20.glDrawArrays(GLES20.GL_LINES, 0, 2);
     }
 }

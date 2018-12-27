@@ -42,18 +42,18 @@ public class Pie extends Shape {
     }
 
     @Override
-    public void draw(SimpleShaderProgram program, Paint paint) {
-        program.setUseFixedColor(true);
+    public void draw(SimpleShaderProgram program,  float[] fillColor,
+                     float[] borderColor, float lineWidth) {
         program.setPosition(vertices, 0, 0);
 
-        if(paint.fill) {
-            program.setFixedColor(paint.fillColor, 0);
+        if(fillColor != null) {
+            program.setColor(fillColor, 0);
             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, numVertices);
         }
 
-        if(paint.drawBorder) {
-            program.setFixedColor(paint.borderColor, 0);
-            GLES20.glLineWidth(paint.lineWidth);
+        if(borderColor != null) {
+            program.setColor(borderColor, 0);
+            GLES20.glLineWidth(lineWidth);
             GLES20.glDrawArrays(GLES20.GL_LINE_LOOP, 1, numVertices);
         }
     }

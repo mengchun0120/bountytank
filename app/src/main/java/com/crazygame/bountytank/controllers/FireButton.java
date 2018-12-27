@@ -4,13 +4,16 @@ import android.graphics.Color;
 
 import com.crazygame.bountytank.event.TouchEvent;
 import com.crazygame.bountytank.geometry.Circle;
-import com.crazygame.bountytank.geometry.Paint;
+import com.crazygame.bountytank.opengl.OpenGLHelper;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 
 public class FireButton {
-    private final int borderColor = Color.argb(255, 120, 0, 0);
-    private final int normalFillColor = Color.argb(255, 255, 210, 210);
-    private final int pressedFillColor = Color.argb(255, 255, 0, 0);
+    private final float[] borderColor =
+            OpenGLHelper.getColor(Color.argb(255, 120, 0, 0));
+    private final float[] normalFillColor =
+            OpenGLHelper.getColor(Color.argb(255, 255, 210, 210));
+    private final float[] pressedFillColor =
+            OpenGLHelper.getColor(Color.argb(255, 255, 0, 0));
 
     private float radius;
     private final float[] center = new float[2];
@@ -19,7 +22,6 @@ public class FireButton {
     private boolean pressed = false;
 
     private Circle button;
-    private Paint paint = new Paint();
 
     public FireButton(float width, float height) {
         radius = 150f;
@@ -30,10 +32,6 @@ public class FireButton {
         center[1] = -height/2f + radius + gapBorder;
 
         button = new Circle(radius, 60);
-
-        paint.fill = true;
-        paint.drawBorder = true;
-        paint.setBorderColor(borderColor);
     }
 
     public boolean isPressed() {
@@ -72,11 +70,7 @@ public class FireButton {
         simpleShaderProgram.setUseObjRef(true);
         simpleShaderProgram.setObjRef(center, 0);
 
-        if(pressed) {
-            paint.setFillColor(pressedFillColor);
-        } else {
-            paint.setFillColor(normalFillColor);
-        }
-        button.draw(simpleShaderProgram, paint);
+        button.draw(simpleShaderProgram, pressed ? pressedFillColor : normalFillColor,
+                borderColor, 1.0f);
     }
 }

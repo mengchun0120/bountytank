@@ -2,24 +2,22 @@ package com.crazygame.bountytank.gameobj;
 
 import android.graphics.Color;
 
-import com.crazygame.bountytank.geometry.Paint;
 import com.crazygame.bountytank.geometry.Rectangle;
+import com.crazygame.bountytank.opengl.OpenGLHelper;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 
 public class TileTemplate {
-    public final float width = 40f;
-    public final float height = 40f;
+    public final float width = 20f;
+    public final float height = 20f;
     private final Rectangle tile = new Rectangle(width, height);
-    private final Paint paint = new Paint();
+    private final float[] fillColor =
+            OpenGLHelper.getColor(Color.argb(255, 133, 235, 235));
+    private final float[] borderColor =
+            OpenGLHelper.getColor(Color.argb(255, 0, 10, 96));
 
-    public TileTemplate() {
-        paint.fill = true;
-        paint.setFillColor(Color.argb(255, 133, 235, 235));
-        paint.drawBorder = true;
-        paint.setBorderColor(Color.argb(255, 0, 10, 96));
-    }
-
-    public void draw(SimpleShaderProgram simpleShaderProgram) {
-        tile.draw(simpleShaderProgram, paint);
+    public void draw(SimpleShaderProgram simpleShaderProgram, float[] position) {
+        simpleShaderProgram.setUseObjRef(true);
+        simpleShaderProgram.setObjRef(position, 0);
+        tile.draw(simpleShaderProgram, fillColor, borderColor, 1.0f);
     }
 }

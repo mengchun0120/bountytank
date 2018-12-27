@@ -111,10 +111,12 @@ public class OpenGLHelper {
         return program;
     }
 
-    public static void getColor(float[] color, int rgba) {
+    public static float[] getColor(int rgba) {
+        float[] color = new float[SimpleShaderProgram.COLOR_COMPONENT_COUNT];
         color[0] = (float)Color.red(rgba) / 255f;
         color[1] = (float)Color.green(rgba) / 255f;
         color[2] = (float)Color.blue(rgba) / 255f;
         color[3] = (float)Color.alpha(rgba) / 255f;
+        return color;
     }
 }

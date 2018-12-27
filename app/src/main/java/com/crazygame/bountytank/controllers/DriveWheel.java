@@ -1,9 +1,9 @@
 package com.crazygame.bountytank.controllers;
 
 import android.graphics.Color;
+import android.graphics.Path;
 
 import com.crazygame.bountytank.event.TouchEvent;
-import com.crazygame.bountytank.geometry.Paint;
 import com.crazygame.bountytank.geometry.Pie;
 import com.crazygame.bountytank.geometry.Polygon;
 import com.crazygame.bountytank.opengl.OpenGLHelper;
@@ -16,10 +16,14 @@ public class DriveWheel {
     public final static int RIGHT = 3;
     public final static int NOT_MOVE = -1;
 
-    private final int borderColor = Color.argb(255, 0, 0, 9);
-    private final int arrowFillColor = Color.argb(255, 255, 200, 30);
-    private final int normalPieColor = Color.argb(255, 227, 255, 164);
-    private final int pressedPieColor = Color.argb(255, 0, 255, 0);
+    private final float[] borderColor =
+            OpenGLHelper.getColor(Color.argb(255, 0, 0, 9));
+    private final float[] arrowFillColor =
+            OpenGLHelper.getColor(Color.argb(255, 255, 200, 30));
+    private final float[] normalPieColor =
+            OpenGLHelper.getColor(Color.argb(255, 227, 255, 164));
+    private final float[] pressedPieColor =
+            OpenGLHelper.getColor(Color.argb(255, 0, 255, 0));
 
     private final float[] center = new float[SimpleShaderProgram.POSITION_COMPONENT_COUNT];
     private float radius;
@@ -27,14 +31,10 @@ public class DriveWheel {
             new float[4 * SimpleShaderProgram.POSITION_COMPONENT_COUNT];
     private final Polygon[] arrows = new Polygon[4];
     private final Pie[] pies = new Pie[4];
-    private final Paint paint = new Paint();
     private int direction = NOT_MOVE;
     private int curPointerId = -1;
 
     public DriveWheel(float width, float height) {
-        paint.drawBorder = true;
-        paint.setBorderColor(borderColor);
-        paint.fill = true;
         setDriveWheel(width, height);
     }
 
@@ -104,14 +104,13 @@ public class DriveWheel {
 
         simpleShaderProgram.setObjRef(center, 0);
         for(int i = 0; i < 4; ++i) {
-            paint.setFillColor(i == direction ? pressedPieColor : normalPieColor);
-            pies[i].draw(simpleShaderProgram, paint);
+            pies[i].draw(simpleShaderProgram, direction == i ? pressedPieColor : normalPieColor,
+                    borderColor, 1.0f);
         }
 
-        paint.setFillColor(arrowFillColor);
         for(int i = 0; i < 4; ++i) {
             simpleShaderProgram.setObjRef(arrowLocations, i*2);
-            arrows[i].draw(simpleShaderProgram, paint);
+            arrows[i].draw(simpleShaderProgram, arrowFillColor, borderColor, 1.0f);
         }
     }
 
