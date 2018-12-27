@@ -8,8 +8,9 @@ import com.crazygame.bountytank.geometry.Paint;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 
 public class FireButton {
-    private final int borderColor = Color.argb(120, 20, 20, 20);
-    private final int pressedFillColor = Color.argb(20, 255, 0, 0);
+    private final int borderColor = Color.argb(255, 120, 0, 0);
+    private final int normalFillColor = Color.argb(255, 255, 210, 210);
+    private final int pressedFillColor = Color.argb(255, 255, 0, 0);
 
     private float radius;
     private final float[] center = new float[2];
@@ -30,10 +31,9 @@ public class FireButton {
 
         button = new Circle(radius, 60);
 
+        paint.fill = true;
         paint.drawBorder = true;
-        paint.relativeToViewport = false;
         paint.setBorderColor(borderColor);
-        paint.setFillColor(pressedFillColor);
     }
 
     public boolean isPressed() {
@@ -69,7 +69,14 @@ public class FireButton {
     }
 
     public void draw(SimpleShaderProgram simpleShaderProgram) {
-        paint.fill = pressed;
-        button.draw(simpleShaderProgram, center, 0, paint);
+        simpleShaderProgram.setUseObjRef(true);
+        simpleShaderProgram.setObjRef(center, 0);
+
+        if(pressed) {
+            paint.setFillColor(pressedFillColor);
+        } else {
+            paint.setFillColor(normalFillColor);
+        }
+        button.draw(simpleShaderProgram, paint);
     }
 }

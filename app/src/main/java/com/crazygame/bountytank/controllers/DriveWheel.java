@@ -16,9 +16,10 @@ public class DriveWheel {
     public final static int RIGHT = 3;
     public final static int NOT_MOVE = -1;
 
-    private final int borderColor = Color.argb(120, 20, 20, 20);
-    private final int arrowFillColor = Color.argb(120, 180, 180, 180);
-    private final int pieFillColor = Color.argb(40, 0, 255, 0);
+    private final int borderColor = Color.argb(255, 0, 0, 9);
+    private final int arrowFillColor = Color.argb(255, 255, 200, 30);
+    private final int normalPieColor = Color.argb(255, 227, 255, 164);
+    private final int pressedPieColor = Color.argb(255, 0, 255, 0);
 
     private final float[] center = new float[SimpleShaderProgram.POSITION_COMPONENT_COUNT];
     private float radius;
@@ -31,9 +32,9 @@ public class DriveWheel {
     private int curPointerId = -1;
 
     public DriveWheel(float width, float height) {
-        paint.relativeToViewport = false;
         paint.drawBorder = true;
         paint.setBorderColor(borderColor);
+        paint.fill = true;
         setDriveWheel(width, height);
     }
 
@@ -99,21 +100,18 @@ public class DriveWheel {
     }
 
     public void draw(SimpleShaderProgram simpleShaderProgram) {
-        for(int i = 0; i < 4; ++i) {
-            if(i == direction) {
-                paint.fill = true;
-                paint.setFillColor(pieFillColor);
-            } else {
-                paint.fill = false;
-            }
+        simpleShaderProgram.setUseObjRef(true);
 
-            pies[i].draw(simpleShaderProgram, center, 0, paint);
+        simpleShaderProgram.setObjRef(center, 0);
+        for(int i = 0; i < 4; ++i) {
+            paint.setFillColor(i == direction ? pressedPieColor : normalPieColor);
+            pies[i].draw(simpleShaderProgram, paint);
         }
 
-        paint.fill = true;
         paint.setFillColor(arrowFillColor);
         for(int i = 0; i < 4; ++i) {
-            arrows[i].draw(simpleShaderProgram, arrowLocations, i*2, paint);
+            simpleShaderProgram.setObjRef(arrowLocations, i*2);
+            arrows[i].draw(simpleShaderProgram, paint);
         }
     }
 

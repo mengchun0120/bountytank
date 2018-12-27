@@ -50,7 +50,6 @@ public class Map {
             rightBorder = new Line(borderAbsX, borderAbsY, borderAbsX, -borderAbsY);
 
             paint.drawBorder = true;
-            paint.relativeToViewport = false;
             paint.lineWidth = 1f;
             paint.setBorderColor(borderColor);
             
@@ -62,7 +61,6 @@ public class Map {
             line = reader.readLine();
             viewportOrigin[0] = Float.parseFloat(line);
             viewportOrigin[1] = viewportHeight / 2f;
-            Log.d("maptag", "viewportOrigin:" + viewportOrigin[0] + " " + viewportOrigin[1]);
             updateEffectiveRegion();
 
             while((line = reader.readLine()) != null) {
@@ -74,7 +72,6 @@ public class Map {
 
                 if(type.equals("tile")) {
                     Tile tile = new Tile(x, y);
-                    Log.d("maptag", "add tile:" + x + " " + y + " " + getRow(y) + " " + getCol(x));
                     addObject(tile, getRow(y), getCol(x));
                 }
             }
@@ -93,8 +90,6 @@ public class Map {
     }
 
     public void addObject(GameObject obj, int row, int col) {
-        Log.d("maptag", "objects " + (objects == null));
-        Log.d("maptag", "objects: " + row + " " + col);
         obj.next = objects[row][col];
         objects[row][col] = obj;
     }
@@ -147,7 +142,9 @@ public class Map {
     }
 
     public void draw(SimpleShaderProgram simpleShaderProgram) {
+        simpleShaderProgram.setRelativeToViewport(true);
         simpleShaderProgram.setViewportOrigin(viewportOrigin, 0);
+
         for(int row = yStart; row <= yEnd; ++row) {
             for(int col = xStart; col <= xEnd; ++col) {
                 for(GameObject obj = objects[row][col]; obj != null; obj = obj.next) {
@@ -155,7 +152,10 @@ public class Map {
                 }
             }
         }
-        leftBorder.draw(simpleShaderProgram, borderLocation, 0, paint);
-        rightBorder.draw(simpleShaderProgram, borderLocation, 0, paint);
+
+        simpleShaderProgram.setRelativeToViewport(false);
+        simpleShaderProgram.setUseObjRef(false);
+        leftBorder.draw(simpleShaderProgram, paint);
+        rightBorder.draw(simpleShaderProgram, paint);
     }
 }

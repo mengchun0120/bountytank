@@ -12,6 +12,7 @@ public class SimpleShaderProgram extends ShaderProgram {
 
     public final int uRelativeToViewportLocation;
     public final int uViewportOriginLocation;
+    public final int uUseObjRefLocation;
     public final int uObjRefLocation;
     public final int uProjectionMatrixLocation;
     public final int uFixedColorLocation;
@@ -26,6 +27,7 @@ public class SimpleShaderProgram extends ShaderProgram {
         uRelativeToViewportLocation = GLES20.glGetUniformLocation(program,
                 "u_RelativeToViewport");
         uViewportOriginLocation = GLES20.glGetUniformLocation(program, "u_ViewportOrigin");
+        uUseObjRefLocation = GLES20.glGetUniformLocation(program, "u_UseObjRef");
         uObjRefLocation = GLES20.glGetUniformLocation(program, "u_ObjRef");
         uProjectionMatrixLocation = GLES20.glGetUniformLocation(program, "u_ProjectionMatrix");
 
@@ -38,6 +40,10 @@ public class SimpleShaderProgram extends ShaderProgram {
 
     public void setRelativeToViewport(boolean value) {
         GLES20.glUniform1i(uRelativeToViewportLocation, value ? 1 : 0);
+    }
+
+    public void setUseObjRef(boolean value) {
+        GLES20.glUniform1i(uUseObjRefLocation, value ? 1 : 0);
     }
 
     public void setProjectionMatrix(float[] projectionMatrix, int offset) {

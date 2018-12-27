@@ -9,7 +9,6 @@ public class Paint {
     public boolean drawBorder = false;
     public final float[] borderColor = new float[SimpleShaderProgram.COLOR_COMPONENT_COUNT];
     public float lineWidth = 1f;
-    public boolean relativeToViewport = true;
 
     public void setFillColor(int rgba) {
         OpenGLHelper.getColor(fillColor, rgba);

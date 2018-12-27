@@ -16,6 +16,8 @@ public class Tile extends GameObject {
 
     @Override
     public void draw(SimpleShaderProgram simpleShaderProgram) {
-        template.draw(simpleShaderProgram, position);
+        simpleShaderProgram.setUseObjRef(true);
+        simpleShaderProgram.setObjRef(position, 0);
+        template.draw(simpleShaderProgram);
     }
 }

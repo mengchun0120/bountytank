@@ -42,10 +42,7 @@ public class Pie extends Shape {
     }
 
     @Override
-    public void draw(SimpleShaderProgram program, float[] location, int offset, Paint paint) {
-        program.setRelativeToViewport(paint.relativeToViewport);
-        program.setObjRef(location, offset);
-
+    public void draw(SimpleShaderProgram program, Paint paint) {
         program.setUseFixedColor(true);
         program.setPosition(vertices, 0, 0);
 

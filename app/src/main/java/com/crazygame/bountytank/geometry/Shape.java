@@ -13,6 +13,5 @@ public abstract class Shape {
                 numVertices * SimpleShaderProgram.POSITION_COMPONENT_COUNT);
     }
 
-    public abstract void draw(SimpleShaderProgram program, float[] location,
-                              int offset, Paint paint);
+    public abstract void draw(SimpleShaderProgram program, Paint paint);
 }

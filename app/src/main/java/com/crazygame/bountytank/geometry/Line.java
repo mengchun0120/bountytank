@@ -1,7 +1,5 @@
 package com.crazygame.bountytank.geometry;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.opengl.GLES20;
 
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
@@ -17,13 +15,10 @@ public class Line extends Shape {
         vertices.bindData();
     }
 
-    public void draw(SimpleShaderProgram program, float[] location,
-                     int offset, com.crazygame.bountytank.geometry.Paint paint) {
+    public void draw(SimpleShaderProgram program, Paint paint) {
         if(!paint.drawBorder) {
             return;
         }
-        program.setRelativeToViewport(paint.relativeToViewport);
-        program.setObjRef(location, offset);
         program.setPosition(vertices, 0, 0);
         program.setUseFixedColor(true);
         program.setFixedColor(paint.borderColor, 0);
