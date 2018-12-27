@@ -77,7 +77,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer, R
 
         driveWheel = new DriveWheel(width, height);
         fireButton = new FireButton(width, height);
-        map = new Map(context, R.raw.map1, width, height);
+        map = new Map(context, R.raw.map1, height);
 
         running.set(true);
         gameThread.start();

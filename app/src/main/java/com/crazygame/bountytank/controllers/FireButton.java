@@ -26,7 +26,7 @@ public class FireButton {
     public FireButton(float width, float height) {
         radius = 150f;
 
-        final float gapBorder = 50f;
+        final float gapBorder = 30f;
 
         center[0] = width/2f - radius - gapBorder;
         center[1] = -height/2f + radius + gapBorder;

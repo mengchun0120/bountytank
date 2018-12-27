@@ -7,8 +7,8 @@ import com.crazygame.bountytank.opengl.OpenGLHelper;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 
 public class TileTemplate {
-    public final float width = 20f;
-    public final float height = 20f;
+    public final float width = 25f;
+    public final float height = 25f;
     private final Rectangle tile = new Rectangle(width, height);
     private final float[] fillColor =
             OpenGLHelper.getColor(Color.argb(255, 133, 235, 235));

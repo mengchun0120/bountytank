@@ -15,21 +15,22 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Map {
-    public final static float MAX_OBJ_BREATH = 160f;
-    public final static float BLOCK_BREATH = 80f;
-    public final static int MAP_BLOCKS_X = 14;
+    public final static float MAX_OBJ_BREATH = 100f;
+    public final static float BLOCK_BREATH = 100f;
 
     private final float[] borderColor =
             OpenGLHelper.getColor(Color.argb(255, 0, 0, 0));
     private final Line leftBorder, rightBorder;
     private final GameObject[][] objects;
-    private final int xBlocks, yBlocks;
-    private final float width, height;
-    private final float extraX, extraY;
-    private int xStart, xEnd, yStart, yEnd;
+    private final int xBlocks = 12;
+    private final int yBlocks;
+    private final float width = (float)xBlocks * BLOCK_BREATH;
+    private final float height;
+    private final float extraY;
+    private int yStart, yEnd;
     private final float[] viewportOrigin = new float[SimpleShaderProgram.POSITION_COMPONENT_COUNT];
 
-    public Map(Context context, int resourceId, float viewportWidth, float viewportHeight) {
+    public Map(Context context, int resourceId, float viewportHeight) {
         try {
             InputStream inputStream = context.getResources().openRawResource(resourceId);
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -39,25 +40,20 @@ public class Map {
             line = reader.readLine();
             StringTokenizer tokenizer = new StringTokenizer(line);
 
-            xBlocks = MAP_BLOCKS_X;
             yBlocks = Integer.parseInt(tokenizer.nextToken());
-            width =  xBlocks * BLOCK_BREATH;
             height = yBlocks * BLOCK_BREATH;
+
+            viewportOrigin[0] = width/2f;
+            viewportOrigin[1] = viewportHeight / 2f;
+
+            extraY = (viewportHeight + MAX_OBJ_BREATH) / 2f;
+            updateEffectiveRegion();
 
             float borderAbsX = width/2f, borderAbsY = viewportHeight/2f;
             leftBorder = new Line(-borderAbsX, borderAbsY, -borderAbsX, -borderAbsY);
             rightBorder = new Line(borderAbsX, borderAbsY, borderAbsX, -borderAbsY);
 
             objects = new GameObject[yBlocks][xBlocks];
-
-            extraX = (viewportWidth + MAX_OBJ_BREATH) / 2f;
-            extraY = (viewportHeight + MAX_OBJ_BREATH) / 2f;
-
-            line = reader.readLine();
-            viewportOrigin[0] = Float.parseFloat(line);
-            viewportOrigin[1] = viewportHeight / 2f;
-            updateEffectiveRegion();
-
             while((line = reader.readLine()) != null) {
                 tokenizer = new StringTokenizer(line);
 
@@ -67,14 +63,14 @@ public class Map {
                     float x = Float.parseFloat(tokenizer.nextToken());
                     float y = Float.parseFloat(tokenizer.nextToken());
                     Tile tile = new Tile(x, y);
-                    addObject(tile, getRow(y), getCol(x));
+                    addObject(tile);
                 } else if(type.equals("tank")) {
                     int direction = Integer.parseInt(tokenizer.nextToken());
                     int side = Integer.parseInt(tokenizer.nextToken());
                     float x = Float.parseFloat(tokenizer.nextToken());
                     float y = Float.parseFloat(tokenizer.nextToken());
                     Tank tank = new Tank(direction, side, x, y);
-                    addObject(tank, getRow(y), getCol(x));
+                    addObject(tank);
                 }
             }
 
@@ -91,12 +87,34 @@ public class Map {
         return (int)Math.floor(x / BLOCK_BREATH);
     }
 
-    public void addObject(GameObject obj, int row, int col) {
+    public boolean addObject(GameObject obj) {
+        int col = getCol(obj.position[0]);
+        if(col < 0 || col >= xBlocks) {
+            return false;
+        }
+
+        int row = getRow(obj.position[1]);
+        if(row < 0 || row >= yBlocks) {
+            return false;
+        }
+
         obj.next = objects[row][col];
         objects[row][col] = obj;
+
+        return true;
     }
 
-    public void removeObject(GameObject obj, int row, int col) {
+    public boolean removeObject(GameObject obj) {
+        int col = getCol(obj.position[0]);
+        if(col < 0 || col >= xBlocks) {
+            return false;
+        }
+
+        int row = getRow(obj.position[1]);
+        if(row < 0 || row >= yBlocks) {
+            return false;
+        }
+
         GameObject prev = null, obj1;
 
         for(obj1= objects[row][col]; obj1!= null; obj1= obj1.next) {
@@ -106,26 +124,20 @@ public class Map {
             prev = obj1;
         }
 
-        if(obj1!= null) {
-            if(prev != null) {
-                prev.next = obj1.next;
-            } else {
-                objects[row][col] = obj1.next;
-            }
+        if(obj1 == null) {
+            return false;
         }
+
+        if(prev != null) {
+            prev.next = obj1.next;
+        } else {
+            objects[row][col] = obj1.next;
+        }
+
+        return true;
     }
 
     private void updateEffectiveRegion() {
-        xStart = (int)Math.floor((viewportOrigin[0] - extraX) / BLOCK_BREATH);
-        if(xStart < 0) {
-            xStart = 0;
-        }
-
-        xEnd = (int)Math.floor((viewportOrigin[0] + extraX) / BLOCK_BREATH);
-        if(xEnd >= xBlocks) {
-            xEnd = xBlocks - 1;
-        }
-
         yStart = (int)Math.floor((viewportOrigin[1] - extraY) / BLOCK_BREATH);
         if(yStart < 0) {
             yStart = 0;
@@ -135,8 +147,6 @@ public class Map {
         if(yEnd >= yBlocks) {
             yEnd = yBlocks - 1;
         }
-
-        Log.d("maptag", "update region:" + yStart + " " + yEnd + " " + xStart + " " + xEnd);
     }
 
     public void updateObjects() {
@@ -148,7 +158,7 @@ public class Map {
         simpleShaderProgram.setViewportOrigin(viewportOrigin, 0);
 
         for(int row = yStart; row <= yEnd; ++row) {
-            for(int col = xStart; col <= xEnd; ++col) {
+            for(int col = 0; col < xBlocks; ++col) {
                 for(GameObject obj = objects[row][col]; obj != null; obj = obj.next) {
                     obj.draw(simpleShaderProgram);
                 }

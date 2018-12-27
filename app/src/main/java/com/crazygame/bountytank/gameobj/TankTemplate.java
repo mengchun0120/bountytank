@@ -8,14 +8,14 @@ import com.crazygame.bountytank.opengl.OpenGLHelper;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 
 public class TankTemplate {
-    private final Circle turret = new Circle(21f, 20);
+    private final Circle turret = new Circle(25f, 20);
     private final Rectangle[] base = {
-        new Rectangle(70, 80),
-        new Rectangle(80, 70)
+        new Rectangle(80, 100),
+        new Rectangle(100, 80)
     };
     private final Rectangle[] barrel = {
-        new Rectangle(10f, 25f),
-        new Rectangle(25f, 10f)
+        new Rectangle(10f, 40f),
+        new Rectangle(40f, 10f)
     };
     private final float[][] turrentPosition = {
         {0f, -13f},
@@ -24,10 +24,10 @@ public class TankTemplate {
         {13f, 0f}
     };
     private final float[][] barrelPosition = {
-        {0f, 20f},
-        {-20f, 0f},
-        {0f, -20f},
-        {-20f, 0f}
+        {0f, 25f},
+        {-25f, 0f},
+        {0f, -25f},
+        {-25f, 0f}
     };
     private final float[] posBuffer = new float[SimpleShaderProgram.POSITION_COMPONENT_COUNT];
     private final float[] borderColor =

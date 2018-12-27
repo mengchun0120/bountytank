@@ -41,7 +41,7 @@ public class DriveWheel {
     private void setDriveWheel(float width, float height) {
         radius = 150f;
 
-        final float gapBorder = 50f;
+        final float gapBorder = 30f;
         final float distArrowToCenter = radius * 0.75f;
 
         center[0] = -width/2f + radius + gapBorder;
