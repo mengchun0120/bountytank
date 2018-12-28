@@ -8,6 +8,7 @@ import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 public class Tank extends GameObject {
     private final static TankTemplate template = new TankTemplate();
     private int direction;
+    private boolean moving = false;
     private boolean firing = false;
     private int side;
     private float speed = 200f;
@@ -28,45 +29,46 @@ public class Tank extends GameObject {
         checkBounds(map);
     }
 
-    public void move(Map map, float timeDelta) {
-        float delta = speed * timeDelta;
-        int oldRow = map.getRow(position[1]);
-        int oldCol = map.getCol(position[0]);
+    public void update(Map map, float timeDelta) {
+        if(moving) {
+            float delta = speed * timeDelta;
+            int oldRow = map.getRow(position[1]);
+            int oldCol = map.getCol(position[0]);
 
-        switch (direction) {
-            case DriveWheel.UP:
-                position[1] += delta;
-                break;
-            case DriveWheel.LEFT:
-                position[0] -= delta;
-                break;
-            case DriveWheel.DOWN:
-                position[1] -= delta;
-                break;
-            case DriveWheel.RIGHT:
-                position[0] += delta;
-                break;
-        }
+            switch (direction) {
+                case DriveWheel.UP:
+                    position[1] += delta;
+                    break;
+                case DriveWheel.LEFT:
+                    position[0] -= delta;
+                    break;
+                case DriveWheel.DOWN:
+                    position[1] -= delta;
+                    break;
+                case DriveWheel.RIGHT:
+                    position[0] += delta;
+                    break;
+            }
 
-        checkBounds(map);
+            checkBounds(map);
 
-        int newRow = map.getRow(position[1]);
-        int newCol = map.getCol(position[0]);
-        if(newRow != oldRow || newCol != oldCol) {
-            map.removeObject(this, oldRow, oldCol);
-            map.addObject(this, newRow, newCol);
+            int newRow = map.getRow(position[1]);
+            int newCol = map.getCol(position[0]);
+            if (newRow != oldRow || newCol != oldCol) {
+                map.removeObject(this, oldRow, oldCol);
+                map.addObject(this, newRow, newCol);
+            }
         }
     }
 
-    public void update(Map map, int newDirection, boolean isFiring, float timeDelta) {
+    public void setState(Map map, int newDirection, boolean isFiring) {
         if(newDirection == DriveWheel.NOT_MOVE) {
-            return;
-        }
-
-        if(newDirection != direction) {
-            changeDirection(map, newDirection);
+            moving = false;
         } else {
-            move(map, timeDelta);
+            moving = true;
+            if(newDirection != direction) {
+                changeDirection(map, newDirection);
+            }
         }
     }
 

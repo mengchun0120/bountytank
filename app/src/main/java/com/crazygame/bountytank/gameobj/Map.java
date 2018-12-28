@@ -156,11 +156,27 @@ public class Map {
         }
     }
 
-    public void updateObjects(GameView gameView, int direction, boolean firing, float timeDelta) {
-        player.update(this, direction, firing, timeDelta);
+    public void updateAll(float timeDelta) {
+        player.update(this, timeDelta);
         updateViewportOrigin();
         updateEffectiveRegion();
-        gameView.requestRender();
+
+        for(int row = yStart; row < yEnd; ++row) {
+            for(int col = 0; col < xBlocks; ++col) {
+                for(GameObject obj = objects[row][col]; obj != null; obj = obj.next) {
+                    if(obj instanceof Tank) {
+                        Tank tank = (Tank)obj;
+                        if(tank != player) {
+                            tank.update(this, timeDelta);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void updatePlayer(int direction, boolean firing) {
+        player.setState(this, direction, firing);
     }
 
     public void draw(SimpleShaderProgram simpleShaderProgram) {

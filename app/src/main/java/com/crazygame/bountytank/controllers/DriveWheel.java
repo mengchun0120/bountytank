@@ -118,21 +118,21 @@ public class DriveWheel {
         return direction;
     }
 
-    public void onTouch(TouchEvent event) {
+    public void onTouch(int action, int pointerId, float x, float y) {
         if(curPointerId != -1) {
-            if(curPointerId != event.pointerId) {
+            if(curPointerId != pointerId) {
                 return;
-            } else if(event.action == TouchEvent.UP) {
+            } else if(action == TouchEvent.UP) {
                 curPointerId = -1;
                 direction = NOT_MOVE;
                 return;
             }
-        } else if(event.action == TouchEvent.UP) {
+        } else if(action == TouchEvent.UP) {
             return;
         }
 
-        float xdist = event.x - center[0];
-        float ydist = event.y - center[1];
+        float xdist = x - center[0];
+        float ydist = y - center[1];
 
         if(xdist * xdist + ydist * ydist > radius * radius) {
             if(curPointerId != -1) {
@@ -142,7 +142,7 @@ public class DriveWheel {
             return;
         }
 
-        curPointerId = event.pointerId;
+        curPointerId = pointerId;
 
         float xabs = Math.abs(xdist);
         float yabs = Math.abs(ydist);
