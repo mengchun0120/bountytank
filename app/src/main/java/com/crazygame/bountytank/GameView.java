@@ -36,6 +36,9 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
 
     private boolean running;
 
+    private final TouchEventHandlerPool touchEventHandlerPool =
+            new TouchEventHandlerPool(100);
+
     private Map map;
     private DriveWheel driveWheel;
     private FireButton fireButton;
@@ -112,8 +115,6 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
         map.draw(simpleShaderProgram);
         driveWheel.draw(simpleShaderProgram);
         fireButton.draw(simpleShaderProgram);
-
-
     }
 
     private void updateProjectionMatrix() {
@@ -131,7 +132,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
                 int pointerId = motionEvent.getPointerId(pointerIdx);
                 float x = translateMotionX(motionEvent.getX(pointerIdx));
                 float y = translateMotionY(motionEvent.getY(pointerIdx));
-                queueEvent(new TouchEventHandler(TouchEvent.DOWN, pointerId, x, y));
+                queueEvent(touchEventHandlerPool.alloc(TouchEvent.DOWN, pointerId, x, y));
                 return true;
             }
 
@@ -142,7 +143,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
                     int pointerId = motionEvent.getPointerId(i);
                     float x = translateMotionX(motionEvent.getX(i));
                     float y = translateMotionY(motionEvent.getY(i));
-                    queueEvent(new TouchEventHandler(TouchEvent.MOVE, pointerId, x, y));
+                    queueEvent(touchEventHandlerPool.alloc(TouchEvent.MOVE, pointerId, x, y));
                 }
                 return true;
             }
@@ -155,7 +156,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
                 int pointerId = motionEvent.getPointerId(pointerIdx);
                 float x = translateMotionX(motionEvent.getX(pointerIdx));
                 float y = translateMotionY(motionEvent.getY(pointerIdx));
-                queueEvent(new TouchEventHandler(TouchEvent.UP, pointerId, x, y));
+                queueEvent(touchEventHandlerPool.alloc(TouchEvent.UP, pointerId, x, y));
                 return true;
             }
         }
@@ -178,7 +179,8 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
     public class TouchEventHandler implements Runnable {
         public int pointerId;
         public int action;
-        float x, y;
+        public float x, y;
+        public TouchEventHandler next = null;
 
         public TouchEventHandler(int action, int pointerId, float x, float y) {
             this.action = action;
@@ -193,6 +195,43 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
             fireButton.onTouch(action, pointerId, x, y);
             map.updatePlayer(driveWheel.getDirection(), fireButton.isPressed());
             GameView.this.requestRender();
+            touchEventHandlerPool.free(this);
+        }
+    }
+
+    public class TouchEventHandlerPool {
+        private TouchEventHandler firstAvailHandler = null;
+        private int count = 0;
+        private int maxSize;
+
+        public TouchEventHandlerPool(int maxSize) {
+            this.maxSize = maxSize;
+        }
+
+        public synchronized TouchEventHandler alloc(int action, int pointerId, float x, float y) {
+            TouchEventHandler handler = null;
+            if(firstAvailHandler != null) {
+                handler = firstAvailHandler;
+                handler.action = action;
+                handler.pointerId = pointerId;
+                handler.x = x;
+                handler.y = y;
+                firstAvailHandler = firstAvailHandler.next;
+                --count;
+            } else {
+                handler = new TouchEventHandler(action, pointerId, x, y);
+            }
+            return handler;
+        }
+
+        public synchronized void free(TouchEventHandler handler) {
+            if(count == maxSize) {
+                return;
+            }
+
+            handler.next = firstAvailHandler;
+            firstAvailHandler = handler;
+            ++count;
         }
     }
 }
