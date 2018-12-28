@@ -3,7 +3,7 @@ package com.crazygame.bountytank.controllers;
 import android.graphics.Color;
 import android.graphics.Path;
 
-import com.crazygame.bountytank.event.TouchEvent;
+import com.crazygame.bountytank.GameView;
 import com.crazygame.bountytank.geometry.Pie;
 import com.crazygame.bountytank.geometry.Polygon;
 import com.crazygame.bountytank.opengl.OpenGLHelper;
@@ -122,12 +122,12 @@ public class DriveWheel {
         if(curPointerId != -1) {
             if(curPointerId != pointerId) {
                 return;
-            } else if(action == TouchEvent.UP) {
+            } else if(action == GameView.FINGER_UP) {
                 curPointerId = -1;
                 direction = NOT_MOVE;
                 return;
             }
-        } else if(action == TouchEvent.UP) {
+        } else if(action == GameView.FINGER_UP) {
             return;
         }
 

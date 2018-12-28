@@ -2,7 +2,7 @@ package com.crazygame.bountytank.controllers;
 
 import android.graphics.Color;
 
-import com.crazygame.bountytank.event.TouchEvent;
+import com.crazygame.bountytank.GameView;
 import com.crazygame.bountytank.geometry.Circle;
 import com.crazygame.bountytank.opengl.OpenGLHelper;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
@@ -42,12 +42,12 @@ public class FireButton {
         if(curPointerId != -1) {
             if(curPointerId != pointerId) {
                 return;
-            } else if(action == TouchEvent.UP) {
+            } else if(action == GameView.FINGER_UP) {
                 curPointerId = -1;
                 pressed = false;
                 return;
             }
-        } else if(action == TouchEvent.UP) {
+        } else if(action == GameView.FINGER_UP) {
             return;
         }
 

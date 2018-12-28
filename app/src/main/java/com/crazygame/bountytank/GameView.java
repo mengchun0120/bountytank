@@ -11,14 +11,9 @@ import android.view.View;
 
 import com.crazygame.bountytank.controllers.DriveWheel;
 import com.crazygame.bountytank.controllers.FireButton;
-import com.crazygame.bountytank.event.TouchEvent;
-import com.crazygame.bountytank.event.TouchEventQueue;
 import com.crazygame.bountytank.gameobj.Map;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
 import com.crazygame.bountytank.utils.TimeDeltaCalculator;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -28,6 +23,10 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
     public final static int RUNNING = 0;
     public final static int PAUSED = 1;
     public final static int END = 2;
+
+    public final static int FINGER_DOWN = 0;
+    public final static int FINGER_MOVE = 1;
+    public final static int FINGER_UP = 2;
 
     private final Context context;
     private float width, height;
@@ -115,7 +114,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
                 int pointerId = motionEvent.getPointerId(pointerIdx);
                 float x = translateMotionX(motionEvent.getX(pointerIdx));
                 float y = translateMotionY(motionEvent.getY(pointerIdx));
-                queueEvent(touchEventHandlerPool.alloc(TouchEvent.DOWN, pointerId, x, y));
+                queueEvent(touchEventHandlerPool.alloc(FINGER_DOWN, pointerId, x, y));
                 return true;
             }
 
@@ -126,7 +125,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
                     int pointerId = motionEvent.getPointerId(i);
                     float x = translateMotionX(motionEvent.getX(i));
                     float y = translateMotionY(motionEvent.getY(i));
-                    queueEvent(touchEventHandlerPool.alloc(TouchEvent.MOVE, pointerId, x, y));
+                    queueEvent(touchEventHandlerPool.alloc(FINGER_MOVE, pointerId, x, y));
                 }
                 return true;
             }
@@ -139,7 +138,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
                 int pointerId = motionEvent.getPointerId(pointerIdx);
                 float x = translateMotionX(motionEvent.getX(pointerIdx));
                 float y = translateMotionY(motionEvent.getY(pointerIdx));
-                queueEvent(touchEventHandlerPool.alloc(TouchEvent.UP, pointerId, x, y));
+                queueEvent(touchEventHandlerPool.alloc(FINGER_UP, pointerId, x, y));
                 return true;
             }
         }
