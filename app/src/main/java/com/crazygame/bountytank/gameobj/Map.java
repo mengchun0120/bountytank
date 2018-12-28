@@ -23,11 +23,11 @@ public class Map {
     private final float[] borderColor =
             OpenGLHelper.getColor(Color.argb(255, 0, 0, 0));
     private final Line leftBorder, rightBorder;
-    private final GameObject[][] objects;
-    private final int xBlocks = 12;
-    private final int yBlocks;
-    private final float width = (float)xBlocks * BLOCK_BREATH;
-    private final float height;
+    public final GameObject[][] objects;
+    public final int xBlocks = 12;
+    public final int yBlocks;
+    public final float width = (float)xBlocks * BLOCK_BREATH;
+    public final float height;
     private final float minViewportOriginY, maxViewportOriginY;
     private final float extraY;
     private Tank player;
@@ -90,14 +90,6 @@ public class Map {
         }
     }
 
-    public float getWidth() {
-        return width;
-    }
-
-    public float getHeight() {
-        return height;
-    }
-
     public int getRow(float y) {
         return (int)Math.floor(y / BLOCK_BREATH);
     }
@@ -132,6 +124,19 @@ public class Map {
         }
 
         return true;
+    }
+
+    public void moveObject(GameObject obj, float x, float y) {
+        int oldRow = getRow(obj.position[1]), oldCol = getCol(obj.position[0]);
+        int newRow = getRow(y), newCol = getCol(x);
+
+        if(oldRow != newRow || oldCol != newCol) {
+            removeObject(obj, oldRow, oldCol);
+            addObject(obj, newRow, newCol);
+        }
+
+        obj.position[0] = x;
+        obj.position[1] = y;
     }
 
     private void updateEffectiveRegion() {

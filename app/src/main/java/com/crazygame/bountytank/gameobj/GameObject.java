@@ -9,6 +9,14 @@ public abstract class GameObject {
     public GameObject() {
     }
 
+    public abstract float getLeft();
+
+    public abstract float getRight();
+
+    public abstract float getTop();
+
+    public abstract float getBottom();
+
     public abstract float getWidth();
 
     public abstract float getHeight();

@@ -21,6 +21,26 @@ public class Tile extends GameObject {
     }
 
     @Override
+    public float getLeft() {
+        return position[0] - getWidth()/2f;
+    }
+
+    @Override
+    public float getRight() {
+        return position[0] + getWidth()/2f;
+    }
+
+    @Override
+    public float getTop() {
+        return position[1] + getHeight()/2f;
+    }
+
+    @Override
+    public float getBottom() {
+        return position[1] - getHeight()/2f;
+    }
+
+    @Override
     public boolean checkCollision(GameObject obj1, float x, float y) {
         return false;
     }
