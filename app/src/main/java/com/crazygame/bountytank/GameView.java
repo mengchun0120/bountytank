@@ -15,6 +15,7 @@ import com.crazygame.bountytank.event.TouchEvent;
 import com.crazygame.bountytank.event.TouchEventQueue;
 import com.crazygame.bountytank.gameobj.Map;
 import com.crazygame.bountytank.opengl.SimpleShaderProgram;
+import com.crazygame.bountytank.utils.TimeDeltaCalculator;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,8 +44,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
     private DriveWheel driveWheel;
     private FireButton fireButton;
 
-    private float prevTime;
-    private float[] timeDeltas = new float[3];
+    TimeDeltaCalculator timeDeltaCalculator = new TimeDeltaCalculator(3);
 
     public GameView(Context context, Point size) {
         super(context);
@@ -73,10 +73,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
         fireButton = new FireButton(width, height);
         map = new Map(context, R.raw.map1, height);
 
-        prevTime = (float)System.nanoTime() / 1e9f;
-        for(int i = 0; i < timeDeltas.length; ++i) {
-            timeDeltas[i] = 0f;
-        }
+        timeDeltaCalculator.start();
 
         setOnTouchListener(this);
     }
@@ -93,21 +90,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer,
 
     @Override
     public void onDrawFrame(GL10 gl10) {
-        float currentTime = (float)System.nanoTime() / 1e9f;
-        float curTimeDelta = currentTime - prevTime;
-        float timeDeltaSum = curTimeDelta;
-
-        for(int i = 1; i < timeDeltas.length; ++i)  {
-            timeDeltaSum += timeDeltas[i];
-            timeDeltas[i-1] = timeDeltas[i];
-        }
-
-        curTimeDelta = timeDeltaSum/(float)timeDeltas.length;
-        timeDeltas[timeDeltas.length-1] = curTimeDelta;
-
-        prevTime = currentTime;
-
-        map.updateAll(curTimeDelta);
+        map.updateAll(timeDeltaCalculator.curTimeDelta());
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         simpleShaderProgram.setProjectionMatrix(projectionMatrix, 0);
